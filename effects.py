@@ -48,9 +48,6 @@ for i in range(13):
 keys = {'a':0, 'z':1, 's':2, 'x':3, 'd':4, 'c':5, 'f':6, 'v':7, 'g':8, 'b':9, 'h':10, 'n':11, 'j':12}
 
 
-CONTINUE = True
-FROMMIC = False
-
 # for chrous
 n = 0
 # for overdrive
@@ -68,6 +65,10 @@ shel_type = 'Treble_Shelf' # Base_Shelf or Treble_Shelf
 
 
 #----------------------------------------- UI ---------------------------
+CONTINUE = True
+FROMMIC = False
+ROBOTSTATUS = 0
+
 def keyPressed(event):
     global CONTINUE
     global a, b, output, states
@@ -87,17 +88,41 @@ def inputFromMic():
         FROMMIC = True
         sourceInfo.set('Sound comes from Mic')
 
+def robotSelection():
+    global ROBOTSTATUS
+    ROBOTSTATUS = int(robotStatus.get())
+    # print(ROBOTSTATUS)
+
 # UI elements
 root = Tk.Tk()
 root.bind("<Key>", keyPressed)
+
+# Frames
+sourceFrame = Tk.Frame(root, bd=10)
+sourceFrame.pack(side = Tk.BOTTOM)
+overdriveFrame = Tk.Frame(root, bd=10)
+overdriveFrame.pack(side = Tk.LEFT)
+robotizationFrame = Tk.Frame(root, bd=10)
+robotizationFrame.pack(side = Tk.LEFT)
+chorusFrame = Tk.Frame(root, bd=10)
+chorusFrame.pack(side = Tk.LEFT)
+ringModulationFrame = Tk.Frame(root, bd=10)
+ringModulationFrame.pack(side = Tk.LEFT)
+schroederFrame = Tk.Frame(root, bd=10)
+schroederFrame.pack(side = Tk.LEFT)
+moorerFrame = Tk.Frame(root, bd=10)
+moorerFrame.pack(side = Tk.LEFT)
+reverbConvolutionFrame = Tk.Frame(root, bd=10)
+reverbConvolutionFrame.pack(side = Tk.LEFT)
+shelvingFrame = Tk.Frame(root, bd=10)
+shelvingFrame.pack(side = Tk.LEFT)
+
+# overdrive UI
 sourceInfo = Tk.StringVar()
 sourceInfo.set('Sound comes from keyboard')
-overdriveInfo = Tk.StringVar()
-overdriveInfo.set('Select the overdrive type')
-SOURCEINFO = Tk.Label(root, textvariable = sourceInfo)
-OVERDRIVEINFO = Tk.Label(root, textvariable = overdriveInfo)
-MIC = Tk.Button(root, text = 'Source', command = inputFromMic)
-distortionType = Tk.Listbox(root)
+OVERDRIVEINFO = Tk.Label(overdriveFrame, text='Overdrive Type')
+OVERDRIVEINFO.pack(side = Tk.TOP)
+distortionType = Tk.Listbox(overdriveFrame, width=30)
 distortionType.insert(Tk.END, 'None')
 distortionType.insert(Tk.END, 'HardClipping')
 distortionType.insert(Tk.END, 'SoftClipping')
@@ -105,11 +130,46 @@ distortionType.insert(Tk.END, 'SoftClippingExponential')
 distortionType.insert(Tk.END, 'HalfWaveRectifier')
 distortionType.insert(Tk.END, 'FullWaveRectifier')
 distortionType.select_set(first=0)
+distortionType.pack(side = Tk.TOP)
 
-MIC.pack(side = Tk.BOTTOM)
-SOURCEINFO.pack(side = Tk.BOTTOM)
-distortionType.pack(side = Tk.BOTTOM)
-OVERDRIVEINFO.pack(side = Tk.BOTTOM)
+# source UI
+SOURCEINFO = Tk.Label(sourceFrame, textvariable = sourceInfo)
+SOURCEINFO.pack(side = Tk.TOP)
+MIC = Tk.Button(sourceFrame, text = 'Source', command = inputFromMic)
+MIC.pack(side = Tk.TOP)
+
+# robotization UI
+ROBOTINFO = Tk.Label(robotizationFrame, text='Robotization')
+ROBOTINFO.pack(side = Tk.TOP)
+robotStatus = Tk.IntVar()
+ROBOTOFF = Tk.Radiobutton(robotizationFrame, text='Off', variable=robotStatus, value=0, command=robotSelection)
+ROBOTOFF.pack(side = Tk.TOP)
+ROBOTON = Tk.Radiobutton(robotizationFrame, text='On', variable=robotStatus, value=1, command=robotSelection)
+ROBOTON.pack(side = Tk.TOP)
+
+# chorus UI
+CHORUSINFO = Tk.Label(chorusFrame, text='Chorus')
+CHORUSINFO.pack(side = Tk.TOP)
+
+# ringModulation UI
+RINGMODULATIONINFO = Tk.Label(ringModulationFrame, text='Ring Modulation')
+RINGMODULATIONINFO.pack(side = Tk.TOP)
+
+# schroeder UI
+SCHROWDERINFO = Tk.Label(schroederFrame, text='Schroeder')
+SCHROWDERINFO.pack(side = Tk.TOP)
+
+# moorer UI
+MOORERINFO = Tk.Label(moorerFrame, text='Moorer')
+MOORERINFO.pack(side = Tk.TOP)
+
+# reverbConvolution UI
+REVERBCONVOLUTIONINFO = Tk.Label(reverbConvolutionFrame, text='Reverb Convolution')
+REVERBCONVOLUTIONINFO.pack(side = Tk.TOP)
+
+# shelving UI
+SHELVINGINFO = Tk.Label(shelvingFrame, text='Shelving')
+SHELVINGINFO.pack(side = Tk.TOP)
 
 print('Press keys "azsxdcfvgbhnj" for sound.')
 print('Press "q" to quit')
@@ -148,14 +208,15 @@ while CONTINUE:
         input_bytes = stream.read(BLOCKLEN)
         y = struct.unpack('h' * BLOCKLEN * CHANNELS, input_bytes)
 
-
     # y is the input
 
     # overdrive
-    # y = overdrive(y, distortionType.curselection()[0])
+    if distortionType.curselection()[0]:
+        y = overdrive(y, distortionType.curselection()[0])
 
     # robotization
-    # y = robotization(y, triangle_window, 5)
+    if ROBOTSTATUS:
+        y = robotization(y, triangle_window, 5)
     
     # Tianshu
     # y, kr, kw, buffer = chorus(y, kr, kw, buffer, n)
@@ -165,7 +226,7 @@ while CONTINUE:
     # y, ring_mod_index = ring_mod(y, ring_mod_index, RATE)
 
     # for reverb schroeder
-    [y, b, a], states_list_sch = schroeder(y, n_sch, g_sch, d_sch, k_sch, states_list_sch)
+    # [y, b, a], states_list_sch = schroeder(y, n_sch, g_sch, d_sch, k_sch, states_list_sch)
 
     # reverb moorer
     # [y, b, a], states_list_moor = moorer(y, cg_moor, cg1_moor, cd_moor, ag_moor, ad_moor, k_moor, gain_moor, states_list_moor)
