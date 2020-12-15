@@ -80,7 +80,7 @@ if __name__ == '__main__':
 
         binary_data = struct.pack('h' * BLOCKLEN, *output_block) # Convert output value to binary data
         stream.write(binary_data) # Write binary data to audio stream
-        output_wf.writeframes(binary_data)# Write binary data to output wave file
+        # output_wf.writeframes(binary_data)# Write binary data to output wave file
         binary_data = wf.readframes(BLOCKLEN) # Get next frame from wave file
 
     print('* Finished')
@@ -88,4 +88,4 @@ if __name__ == '__main__':
     stream.close()
     p.terminate()
     wf.close() # Close wavefiles
-    output_wf.close()
+    # output_wf.close()

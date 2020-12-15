@@ -180,7 +180,7 @@ while CONTINUE:
     # y, states_shel = shelving(b_shel, a_shel, y, states_shel)
 
     # tremolo2
-    y, trem = tremolo2(y, trem)
+    # y, trem = tremolo2(y, trem)
 
 
     binary_data = struct.pack('h' * BLOCKLEN * CHANNELS, *y);    # Convert to binary binary data
