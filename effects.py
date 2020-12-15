@@ -12,6 +12,7 @@ from reverb_convolution import reverb_convolution, clic_pre
 from shelving import shelving, shelving_pre
 from reverb_schroeder import schroeder, schroeder_pre
 from tremolo2 import tremolo2
+from wah_wah import wah_wah
 # from chorus import chorus
 
 # ---------------------------- Parameters -----------------------------
@@ -65,7 +66,9 @@ shel_type = 'Treble_Shelf' # Base_Shelf or Treble_Shelf
 [b_shel, a_shel], states_shel = shelving_pre(RATE, shel_type)
 # tremolo2
 trem = []
-
+# wah wah
+Fc_wah_wah = []
+wah_wah_pair = [0, 0, 0]
 
 #----------------------------------------- UI ---------------------------
 CONTINUE = True
@@ -242,6 +245,9 @@ while CONTINUE:
 
     # tremolo2
     # y, trem = tremolo2(y, trem)
+
+    # wah_wah
+    y, Fc_wah_wah, wah_wah_pair = wah_wah(y, Fc_wah_wah, RATE, wah_wah_pair)
 
 
     binary_data = struct.pack('h' * BLOCKLEN * CHANNELS, *y);    # Convert to binary binary data
