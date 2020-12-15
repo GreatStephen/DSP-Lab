@@ -1,3 +1,5 @@
+# Ring Modulation with triangular wave
+
 import pyaudio
 import wave
 import struct
@@ -6,19 +8,22 @@ import numpy as np
 from scipy.signal import lfilter
 import scipy.signal
 
-def ring_mod(x, index, RATE, Fc=440, MAXVALUE=2**15-1):
+def tremolo2(x, trem_prev, delta=5e-4, minf=-0.5, maxf=0.5, MAXVALUE=2**15-1):
     x = np.array(x)/MAXVALUE
-    index_array = np.arange(index, index+len(x))
-    carrier = np.sin(2*math.pi*index_array*(Fc/RATE))
-    output_block = x*carrier
-    output_block = MAXVALUE*output_block
-    output_block = np.clip(output_block, -MAXVALUE, MAXVALUE) # clipping
-    output_block = output_block.astype(int) # convert to integer
-    return output_block, index_array[-1]+1
+    trem_prev = list(trem_prev)
+    while len(trem_prev)<len(x):
+        trem_prev += list(np.arange(minf, maxf, delta)) + list(np.arange(maxf, minf, -delta))
+    trem = np.array(trem_prev[:len(x)])
+    trem_next = np.array(trem_prev[len(x):])
+    y = x*trem
+    y = MAXVALUE*y
+    y = np.clip(y, -MAXVALUE, MAXVALUE) # clipping
+    y = y.astype(int) # convert to integer
+    return y, trem_next
 
 if __name__ == '__main__':
     wavfile = 'acoustic.wav'
-    output_wavfile = 'out_ringmod_python.wav'
+    output_wavfile = 'out_tremolo2_python.wav'
     wf = wave.open( wavfile, 'rb') # Open wave file (should be mono channel)
 
     CHANNELS        = wf.getnchannels()     # Number of channels
@@ -44,12 +49,11 @@ if __name__ == '__main__':
     MAXVALUE = 2**15-1  # Maximum allowed output signal value (because WIDTH = 2)
     binary_data = wf.readframes(BLOCKLEN) # Get first set of frame from wave file
 
-    # ------------------- separate frame -------------------
-    index = 0
+    trem = []
     while len(binary_data) == WIDTH*BLOCKLEN:
         input_block = struct.unpack('h'*BLOCKLEN, binary_data)
         
-        output_block, index = ring_mod(input_block, index, RATE)
+        output_block, trem = tremolo2(input_block, trem)
         
         binary_data = struct.pack('h' * BLOCKLEN, *output_block) # Convert output value to binary data
         stream.write(binary_data) # Write binary data to audio stream
