@@ -5,8 +5,10 @@ from math import sin, cos, pi
 import tkinter as Tk   
 import math 
 # from overdrive import overdrive
-from chorus import chorus
+# from chorus import chorus
+# from robotization import robotization
 
+# ---------------------------- Parameters -----------------------------
 BLOCKLEN   = 128        # Number of frames per block
 WIDTH       = 2         # Bytes per sample
 CHANNELS    = 1         # Mono
@@ -14,10 +16,8 @@ RATE        = 8000      # Frames per second
 
 MAXVALUE = 2**15-1  # Maximum allowed output signal value (because WIDTH = 2)
 
-# Parameters
 Ta = 1      # Decay time (seconds)
 f0 = 440    # Frequency (Hz)
-
 
 # Buffer to store past signal values. Initialize to zero.
 BUFFER_LEN =  2048          # Set buffer length.
@@ -30,6 +30,9 @@ kw = int(0.5 * BUFFER_LEN)  # write index (initialize to middle of buffer)
 # Pole radius and angle
 r = 0.01**(1.0/(Ta*RATE))       # 0.01 for 1 percent amplitude
 
+# triangle window
+triangle_window = [1-abs(2*i/(BLOCKLEN-1) - 1) for i in range(BLOCKLEN)]
+
 ORDER = 2   # filter order
 states, x, output = [], [], []
 for i in range(13):
@@ -40,21 +43,13 @@ for i in range(13):
 keys = {'a':0, 'z':1, 's':2, 'x':3, 'd':4, 'c':5, 'f':6, 'v':7, 'g':8, 'b':9, 'h':10, 'n':11, 'j':12}
 
 
-# Open the audio output stream
-p = pyaudio.PyAudio()
-PA_FORMAT = pyaudio.paInt16
-stream = p.open(
-        format      = PA_FORMAT,
-        channels    = CHANNELS,
-        rate        = RATE,
-        input       = True,
-        output      = True,
-        frames_per_buffer = 128)
-# specify low frames_per_buffer to reduce latency
-
 CONTINUE = True
 FROMMIC = False
 
+n = 0
+
+
+#----------------------------------------- UI ---------------------------
 def keyPressed(event):
     global CONTINUE
     global a, b, output, states
@@ -101,8 +96,22 @@ OVERDRIVEINFO.pack(side = Tk.BOTTOM)
 print('Press keys "azsxdcfvgbhnj" for sound.')
 print('Press "q" to quit')
 
-n = 0
 
+#--------------------------------------------- Stream -------------------------
+# Open the audio output stream
+p = pyaudio.PyAudio()
+PA_FORMAT = pyaudio.paInt16
+stream = p.open(
+        format      = PA_FORMAT,
+        channels    = CHANNELS,
+        rate        = RATE,
+        input       = True,
+        output      = True,
+        frames_per_buffer = 128)
+# specify low frames_per_buffer to reduce latency
+
+
+#---------------------------------------------- Main Loop --------------
 while CONTINUE:
     root.update()
     if not FROMMIC:
@@ -121,13 +130,14 @@ while CONTINUE:
         input_bytes = stream.read(BLOCKLEN)
         y = struct.unpack('h' * BLOCKLEN * CHANNELS, input_bytes)
 
-    # y is the input
 
     # y = overdrive(y, distortionType.curselection()[0])
     
     # Tianshu
-    y, kr, kw, buffer = chorus(y, kr, kw, buffer, n)
-    n += 1
+    # y, kr, kw, buffer = chorus(y, kr, kw, buffer, n)
+    # n += 1
+
+    # y = robotization(y, triangle_window, 5)
 
     binary_data = struct.pack('h' * BLOCKLEN * CHANNELS, *y);    # Convert to binary binary data
     stream.write(binary_data, BLOCKLEN * CHANNELS)               # Write binary binary data to audio output
