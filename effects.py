@@ -11,6 +11,7 @@ from moorer import moorer, moorer_pre
 from reverb_convolution import reverb_convolution, clic_pre
 from shelving import shelving, shelving_pre
 from reverb_schroeder import schroeder, schroeder_pre
+from tremolo2 import tremolo2
 # from chorus import chorus
 
 # ---------------------------- Parameters -----------------------------
@@ -65,6 +66,8 @@ imp_rc, keep_rc = clic_pre(clicfile, BLOCKLEN)
 # for shelving
 shel_type = 'Treble_Shelf' # Base_Shelf or Treble_Shelf
 [b_shel, a_shel], states_shel = shelving_pre(RATE, shel_type)
+# tremolo2
+trem = []
 
 
 #----------------------------------------- UI ---------------------------
@@ -165,7 +168,7 @@ while CONTINUE:
     # y, ring_mod_index = ring_mod(y, ring_mod_index, RATE)
 
     # for reverb schroeder
-    [y, b, a], states_list_sch = schroeder(y, n_sch, g_sch, d_sch, k_sch, states_list_sch)
+    # [y, b, a], states_list_sch = schroeder(y, n_sch, g_sch, d_sch, k_sch, states_list_sch)
 
     # reverb moorer
     # [y, b, a], states_list_moor = moorer(y, cg_moor, cg1_moor, cd_moor, ag_moor, ad_moor, k_moor, gain_moor, states_list_moor)
@@ -175,6 +178,9 @@ while CONTINUE:
 
     # shelving: Base_Shelf or Treble_Shelf
     # y, states_shel = shelving(b_shel, a_shel, y, states_shel)
+
+    # tremolo2
+    y, trem = tremolo2(y, trem)
 
 
     binary_data = struct.pack('h' * BLOCKLEN * CHANNELS, *y);    # Convert to binary binary data
