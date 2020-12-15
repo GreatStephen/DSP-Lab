@@ -4,9 +4,14 @@ from scipy import signal
 from math import sin, cos, pi
 import tkinter as Tk   
 import math 
-# from overdrive import overdrive
+from overdrive import overdrive
+from robotization import robotization
+from ring_mod import ring_mod
+from moorer import moorer, moorer_pre
+from reverb_convolution import reverb_convolution, clic_pre
+from shelving import shelving, shelving_pre
+from reverb_schroeder import schroeder, schroeder_pre
 # from chorus import chorus
-# from robotization import robotization
 
 # ---------------------------- Parameters -----------------------------
 BLOCKLEN   = 128        # Number of frames per block
@@ -46,7 +51,20 @@ keys = {'a':0, 'z':1, 's':2, 'x':3, 'd':4, 'c':5, 'f':6, 'v':7, 'g':8, 'b':9, 'h
 CONTINUE = True
 FROMMIC = False
 
+# for chrous
 n = 0
+# for overdrive
+ring_mod_index = 0
+# for reverb schroeder
+n_sch, g_sch, d_sch, k_sch, states_list_sch = schroeder_pre(RATE)
+# for reverb moorer
+cd_moor, g1_moor, g2_moor, cg_moor, cg1_moor, ag_moor, ad_moor, k_moor, gain_moor, states_list_moor = moorer_pre(RATE)
+# for reverb convolution
+clicfile = 'impulse_room.wav'
+imp_rc, keep_rc = clic_pre(clicfile, BLOCKLEN)
+# for shelving
+shel_type = 'Treble_Shelf' # Base_Shelf or Treble_Shelf
+[b_shel, a_shel], states_shel = shelving_pre(RATE, shel_type)
 
 
 #----------------------------------------- UI ---------------------------
@@ -131,13 +149,33 @@ while CONTINUE:
         y = struct.unpack('h' * BLOCKLEN * CHANNELS, input_bytes)
 
 
+    # y is the input
+
+    # overdrive
     # y = overdrive(y, distortionType.curselection()[0])
+
+    # robotization
+    # y = robotization(y, triangle_window, 5)
     
     # Tianshu
     # y, kr, kw, buffer = chorus(y, kr, kw, buffer, n)
     # n += 1
 
-    # y = robotization(y, triangle_window, 5)
+    # ring modulation
+    # y, ring_mod_index = ring_mod(y, ring_mod_index, RATE)
+
+    # for reverb schroeder
+    [y, b, a], states_list_sch = schroeder(y, n_sch, g_sch, d_sch, k_sch, states_list_sch)
+
+    # reverb moorer
+    # [y, b, a], states_list_moor = moorer(y, cg_moor, cg1_moor, cd_moor, ag_moor, ad_moor, k_moor, gain_moor, states_list_moor)
+
+    # reverb convoluton
+    # y, keep_rc = reverb_convolution(y, imp_rc, keep_rc, BLOCKLEN)
+
+    # shelving: Base_Shelf or Treble_Shelf
+    # y, states_shel = shelving(b_shel, a_shel, y, states_shel)
+
 
     binary_data = struct.pack('h' * BLOCKLEN * CHANNELS, *y);    # Convert to binary binary data
     stream.write(binary_data, BLOCKLEN * CHANNELS)               # Write binary binary data to audio output
