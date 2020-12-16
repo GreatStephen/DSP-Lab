@@ -6,12 +6,12 @@ import numpy as np
 from scipy.signal import lfilter
 import scipy.signal
 
-def ring_mod(x, index, RATE, Fc=440, MAXVALUE=2**15-1):
+def ring_mod(x, index, RATE, gain=1, Fc=440, MAXVALUE=2**15-1):
     x = np.array(x)/MAXVALUE
     index_array = np.arange(index, index+len(x))
     carrier = np.sin(2*math.pi*index_array*(Fc/RATE))
     output_block = x*carrier
-    output_block = MAXVALUE*output_block
+    output_block = MAXVALUE*output_block*gain
     output_block = np.clip(output_block, -MAXVALUE, MAXVALUE) # clipping
     output_block = output_block.astype(int) # convert to integer
     return output_block, index_array[-1]+1

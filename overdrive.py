@@ -1,4 +1,5 @@
 import math
+import numpy as np
 
 HardClipping = 1
 SoftClipping = 2
@@ -6,7 +7,7 @@ SoftClippingExponential = 3
 HalfWaveRectifier = 4
 FullWaveRectifier = 5
 
-def overdrive(y, distortionType):
+def overdrive(y, distortionType, gain=1, MAXVALUE=2**15-1):
     if distortionType==HardClipping:
         threshold = 1000
         def HC(v):
@@ -46,4 +47,7 @@ def overdrive(y, distortionType):
     elif distortionType==FullWaveRectifier:
         y = list(map(lambda v:abs(v), y))        
     
+    y = np.array(y)*gain
+    y = np.clip(y, -MAXVALUE, MAXVALUE) # clipping
+    y = y.astype(int) # convert to integer
     return y

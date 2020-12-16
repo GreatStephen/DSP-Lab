@@ -59,10 +59,10 @@ def shelving_pre(RATE, dtype):
     states = np.zeros(len(b)-1)
     return [b, a], states
 
-def shelving(b, a, input_block, states, MAXVALUE=2**15-1):
+def shelving(b, a, input_block, states, gain=1, MAXVALUE=2**15-1):
     input_block = np.array(input_block)/MAXVALUE
     output_block, states = lfilter(b, a, input_block, zi=states)
-    output_block = MAXVALUE*output_block
+    output_block = MAXVALUE*output_block*gain
     output_block = np.clip(output_block, -MAXVALUE, MAXVALUE) # clipping
     output_block = output_block.astype(int) # convert to integer
     return output_block, states

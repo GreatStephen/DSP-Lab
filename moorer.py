@@ -47,11 +47,10 @@ def moorer_pre(RATE):
     ag = 0.7
     ad = int(0.08*RATE)
     k = 0.5
-    gain = 0.8
     states_list = [np.zeros(tmp_d+1) for tmp_d in cd]+[np.zeros(ad)]
-    return cd, g1, g2, cg, cg1, ag, ad, k, gain, states_list
+    return cd, g1, g2, cg, cg1, ag, ad, k, states_list
 
-def moorer(x, cg, cg1, cd, ag, ad, k, gain, states_list, MAXVALUE=2**15-1):
+def moorer(x, cg, cg1, cd, ag, ad, k, states_list, gain=1, MAXVALUE=2**15-1):
     x = np.array(x)/MAXVALUE
 
     [outcomb1, b1, a1], states_list[0] = lpcomb(x, cg[0], cg1[0], cd[0], states_list[0])

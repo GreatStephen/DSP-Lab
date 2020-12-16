@@ -28,7 +28,7 @@ def schroeder_pre(RATE):
     states_list = [np.zeros(tmp_d) for tmp_d in d]
     return n, g, d, k, states_list
 
-def schroeder(x, n, g, d, k, states_list, MAXVALUE=2**15-1):
+def schroeder(x, n, g, d, k, states_list, gain=1, MAXVALUE=2**15-1):
     x = np.array(x)/MAXVALUE
     states_list_tmp = [0]*len(states_list)
     [y, b, a], states_list_tmp[0] = allpass(x, g, d[0], states_list[0])
@@ -38,7 +38,7 @@ def schroeder(x, n, g, d, k, states_list, MAXVALUE=2**15-1):
     y = np.array(y)
     y = y + k*x
     # y = y/np.max(y)        
-    y = MAXVALUE*y
+    y = MAXVALUE*y*gain
     y = np.clip(y, -MAXVALUE, MAXVALUE) # clipping
     y = y.astype(int) # convert to integer
 

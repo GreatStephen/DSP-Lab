@@ -5,7 +5,7 @@ import math
 import numpy as np
 import scipy.signal
 
-def wah_wah(x, Fc_prev, RATE, last_pair, damp=0.05, minf=500, maxf=3000, Fw=2000, MAXVALUE=2**15-1):
+def wah_wah(x, Fc_prev, RATE, last_pair, gain=1, damp=0.05, minf=500, maxf=3000, Fw=2000, MAXVALUE=2**15-1):
     x = np.array(x)/MAXVALUE
     
     delta = Fw/RATE
@@ -29,7 +29,7 @@ def wah_wah(x, Fc_prev, RATE, last_pair, damp=0.05, minf=500, maxf=3000, Fw=2000
         F1 = 2*math.sin((math.pi*Fc[n])/RATE)
     # yb = yb/np.max(np.abs(yb))
     yb = np.array(yb[1:])
-    yb = MAXVALUE*yb
+    yb = MAXVALUE*yb*gain
     yb = np.clip(yb, -MAXVALUE, MAXVALUE) # clipping
     yb = yb.astype(int) # convert to integer
     return yb, Fc_next, [yh[-1], yb[-1], yl[-1]]
@@ -58,7 +58,7 @@ if __name__ == '__main__':
         output      = True)
 
     BLOCKLEN = 148799
-    BLOCKLEN = 128
+    BLOCKLEN = 2048
     MAXVALUE = 2**15-1  # Maximum allowed output signal value (because WIDTH = 2)
     binary_data = wf.readframes(BLOCKLEN) # Get first set of frame from wave file
 

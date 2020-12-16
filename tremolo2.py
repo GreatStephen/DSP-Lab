@@ -8,7 +8,7 @@ import numpy as np
 from scipy.signal import lfilter
 import scipy.signal
 
-def tremolo2(x, trem_prev, delta=5e-4, minf=-0.5, maxf=0.5, MAXVALUE=2**15-1):
+def tremolo2(x, trem_prev, gain=1, delta=5e-4, minf=-0.5, maxf=0.5, MAXVALUE=2**15-1):
     x = np.array(x)/MAXVALUE
     trem_prev = list(trem_prev)
     while len(trem_prev)<len(x):
@@ -16,7 +16,7 @@ def tremolo2(x, trem_prev, delta=5e-4, minf=-0.5, maxf=0.5, MAXVALUE=2**15-1):
     trem = np.array(trem_prev[:len(x)])
     trem_next = np.array(trem_prev[len(x):])
     y = x*trem
-    y = MAXVALUE*y
+    y = MAXVALUE*y*gain
     y = np.clip(y, -MAXVALUE, MAXVALUE) # clipping
     y = y.astype(int) # convert to integer
     return y, trem_next

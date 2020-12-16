@@ -17,7 +17,7 @@ def clic_pre(filename, BLOCKLEN, MAXVALUE=2**15-1):
     keep = np.zeros(BLOCKLEN+binary_data_imp_len-1)
     return input_block_imp, keep
 
-def reverb_convolution(x, h, keep, BLOCKLEN, MAXVALUE=2**15-1):
+def reverb_convolution(x, h, keep, BLOCKLEN, gain=1, MAXVALUE=2**15-1):
     x = np.array(x)/MAXVALUE
     Ly = len(x)+len(h)-1
     Ly2_idx = 0
@@ -32,7 +32,7 @@ def reverb_convolution(x, h, keep, BLOCKLEN, MAXVALUE=2**15-1):
     y = np.real(ifft(Y, Ly2))
     y = y[:Ly]
     # y = y/np.max(np.abs(y))
-    y = MAXVALUE*y
+    y = MAXVALUE*y*gain
     keep = y+keep
     y = keep[:BLOCKLEN]
     keep = np.concatenate((keep[BLOCKLEN:], np.zeros(BLOCKLEN)), axis=None)
