@@ -11,7 +11,7 @@ def clip16( x ):
         x = x        
     return (x)	
 
-def robotization(y, window, output_gain):
+def robotization(y, window, gain, MAXVALUE=2**15-1):
     y_len = len(y)
     
     # window function
@@ -25,6 +25,9 @@ def robotization(y, window, output_gain):
         y_output.append(int(amplitude))
     
     y_ifft = np.fft.ifft(y_output)
-    y_ifft = list(map(lambda x: clip16(int(x.real)*output_gain), y_ifft))
-
+    y_ifft = list(map(lambda x: clip16(int(x.real)), y_ifft))
+    y_ifft = np.array(y_ifft)
+    y_ifft = y_ifft*gain
+    y_ifft = np.clip(y_ifft, -MAXVALUE, MAXVALUE) # clipping
+    y_ifft = y_ifft.astype(int) # convert to integer
     return y_ifft

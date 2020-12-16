@@ -448,14 +448,14 @@ while CONTINUE:
         else:
             pass
     
+    # tremolo2
+    if TREMOLO2STATUS:
+        y, trem = tremolo2(y, trem, float(tremolo2Gain.get()))
+    
     # tremolo
     # if TREMOLOSTATUS:
     #     y = tremolo(y, n)
     #     n += 1
-
-    # tremolo2
-    if TREMOLO2STATUS:
-        y, trem = tremolo2(y, trem, float(tremolo2Gain.get()))
 
     # wah_wah
     if WAHWAHSTATUS:
@@ -470,7 +470,7 @@ while CONTINUE:
         n += 1
 
 
-    binary_data = struct.pack('h' * BLOCKLEN * CHANNELS, *y);    # Convert to binary binary data
+    binary_data = struct.pack('h' * BLOCKLEN*CHANNELS, *y);    # Convert to binary binary data
     stream.write(binary_data, BLOCKLEN * CHANNELS)               # Write binary binary data to audio output
 
 print('* Done.')
