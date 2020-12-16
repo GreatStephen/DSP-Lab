@@ -5,7 +5,7 @@ import math
 import numpy as np
 from scipy.signal import lfilter
 import scipy.signal
-from scipy.fft import fft, ifft
+from scipy import fft, ifft
 
 def clic_pre(filename, BLOCKLEN, MAXVALUE=2**15-1):
     cf = wave.open(filename, 'rb')
