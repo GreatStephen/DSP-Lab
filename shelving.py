@@ -12,11 +12,11 @@ def shelving_pre(RATE, dtype):
 
     if dtype == 'Base_Shelf':
         G = 4
-        fc = 300
+        fc = 500
         Q = 3
     else:
         G = 4
-        fc = 600
+        fc = 700
         Q = 3
 
     K = math.tan((math.pi * fc)/RATE)
