@@ -13,7 +13,9 @@ from shelving import shelving, shelving_pre
 from reverb_schroeder import schroeder, schroeder_pre
 from tremolo2 import tremolo2
 from wah_wah import wah_wah
-# from chorus import chorus
+from chorus import chorus
+from flanger import flanger
+from tremolo import tremolo
 
 # ---------------------------- Parameters -----------------------------
 BLOCKLEN   = 1024        # Number of frames per block
@@ -27,12 +29,15 @@ Ta = 1      # Decay time (seconds)
 f0 = 440    # Frequency (Hz)
 
 # Buffer to store past signal values. Initialize to zero.
-BUFFER_LEN =  2048          # Set buffer length.
-buffer = BUFFER_LEN * [0]   # list of zeros
+BUFFER_LEN_CH =  2048          # Set buffer length.
+BUFFER_LEN_FL = 1024
+buffer_chorus, buffer_flanger = BUFFER_LEN_CH * [0], BUFFER_LEN_FL * [0]   # list of zeros
 
 # Buffer (delay line) indices
-kr = 0  # read index
-kw = int(0.5 * BUFFER_LEN)  # write index (initialize to middle of buffer)
+kr_ch = 0  # read index
+kw_ch = int(0.5 * BUFFER_LEN_CH)  # write index (initialize to middle of buffer)
+kr_fl = 0  # read index
+kw_fl = int(0.5 * BUFFER_LEN_FL)  # write index (initialize to middle of buffer)
 
 # Pole radius and angle
 r = 0.01**(1.0/(Ta*RATE))       # 0.01 for 1 percent amplitude
@@ -79,8 +84,12 @@ RINGMODULESTATUS = 0
 SCHROEDERSTATUS = 0
 MOORERSTATUS = 0
 REVERBCONVOLUTIONSTATUS = 0
+TREMOLOSTATUS = 0
 TREMOLO2STATUS = 0
 WAHWAHSTATUS = 0
+CHORUSSTATUS = 0
+FLANGERSTATUS = 0
+
 
 def keyPressed(event):
     global CONTINUE
@@ -121,6 +130,10 @@ def reverbConvolutionSelection():
     global REVERBCONVOLUTIONSTATUS
     REVERBCONVOLUTIONSTATUS = int(reverbConvolutionStatus.get())
 
+def tremoloSelection():
+    global TREMOLOSTATUS
+    TREMOLOSTATUS = int(tremoloStatus.get())
+
 def tremolo2Selection():
     global TREMOLO2STATUS
     TREMOLO2STATUS = int(tremolo2Status.get())
@@ -128,6 +141,14 @@ def tremolo2Selection():
 def wahwahSelection():
     global WAHWAHSTATUS
     WAHWAHSTATUS = int(wahwahStatus.get())
+
+def chorusSelection():
+    global CHORUSSTATUS
+    CHORUSSTATUS = int(chorusmoduleStatus.get())
+
+def flangerSelection():
+    global FLANGERSTATUS
+    FLANGERSTATUS = int(flangermoduleStatus.get())
 
 # UI elements
 root = Tk.Tk()
@@ -144,6 +165,8 @@ robotizationFrame = Tk.Frame(root, bd=10)
 robotizationFrame.pack(side = Tk.LEFT)
 chorusFrame = Tk.Frame(root, bd=10)
 chorusFrame.pack(side = Tk.LEFT)
+flangerFrame = Tk.Frame(root, bd=10)
+flangerFrame.pack(side = Tk.LEFT)
 ringModulationFrame = Tk.Frame(root, bd=10)
 ringModulationFrame.pack(side = Tk.LEFT)
 schroederFrame = Tk.Frame(root, bd=10)
@@ -152,6 +175,8 @@ moorerFrame = Tk.Frame(root, bd=10)
 moorerFrame.pack(side = Tk.LEFT)
 reverbConvolutionFrame = Tk.Frame(root, bd=10)
 reverbConvolutionFrame.pack(side = Tk.LEFT)
+tremoloFrame = Tk.Frame(root, bd=10)
+tremoloFrame.pack(side = Tk.LEFT)
 tremolo2Frame = Tk.Frame(root, bd=10)
 tremolo2Frame.pack(side = Tk.LEFT)
 wahwahFrame = Tk.Frame(root, bd=10)
@@ -203,12 +228,20 @@ ROBOTGAIN.pack()
 # chorus UI
 CHORUSINFO = Tk.Label(chorusFrame, text='Chorus', font='Helvetica 12 bold')
 CHORUSINFO.pack(side = Tk.TOP)
-chorusGain = Tk.DoubleVar()
-chorusGain.set(1)
-CHORUS_TEXT = Tk.Label(chorusFrame, text = "Gain Interval", font='Helvetica')
-CHORUS_TEXT.pack()
-CHORUSGAIN = Tk.Scale(chorusFrame, variable = chorusGain, orient = Tk.HORIZONTAL, from_ = 0, to = 10, resolution = output_gain_interval)
-CHORUSGAIN.pack()
+chorusmoduleStatus = Tk.IntVar()
+CHORUSOFF = Tk.Radiobutton(chorusFrame, text='Off', variable=chorusmoduleStatus, value=0, command=chorusSelection)
+CHORUSOFF.pack(side = Tk.TOP)
+CHORUSON = Tk.Radiobutton(chorusFrame, text='On', variable=chorusmoduleStatus, value=1, command=chorusSelection)
+CHORUSON.pack(side = Tk.TOP)
+
+# flanger UI
+FLANGERINFO = Tk.Label(flangerFrame, text='Flanger', font='Helvetica 12 bold')
+FLANGERINFO.pack(side = Tk.TOP)
+flangermoduleStatus = Tk.IntVar()
+FLANGEROFF = Tk.Radiobutton(flangerFrame, text='Off', variable=flangermoduleStatus, value=0, command=flangerSelection)
+FLANGEROFF.pack(side = Tk.TOP)
+FLANGERON = Tk.Radiobutton(flangerFrame, text='On', variable=flangermoduleStatus, value=1, command=flangerSelection)
+FLANGERON.pack(side = Tk.TOP)
 
 # ringModulation UI
 RINGMODULATIONINFO = Tk.Label(ringModulationFrame, text='Ring Modulation', font='Helvetica 12 bold')
@@ -286,6 +319,21 @@ SHELVINGGAIN_TEXT.pack()
 SHELVINGGAIN = Tk.Scale(shelvingFrame, variable = shelvingGain, orient = Tk.HORIZONTAL, from_ = 0, to = 10, resolution = output_gain_interval)
 SHELVINGGAIN.pack()
 
+# tremolo UI
+# TREMOLOINFO = Tk.Label(tremoloFrame, text='Tremolo', font='Helvetica 12 bold')
+# TREMOLOINFO.pack(side = Tk.TOP)
+# tremoloStatus = Tk.IntVar()
+# TREMOLOOFF = Tk.Radiobutton(tremoloFrame, text='Off', variable=tremoloStatus, value=0, command=tremoloSelection)
+# TREMOLOOFF.pack(side = Tk.TOP)
+# TREMOLOON = Tk.Radiobutton(tremoloFrame, text='On', variable=tremoloStatus, value=1, command=tremoloSelection)
+# TREMOLOON.pack(side = Tk.TOP)
+# tremoloGain = Tk.DoubleVar()
+# tremoloGain.set(1)
+# TREMOLOGAIN_TEXT = Tk.Label(tremoloFrame, text = "Gain Interval", font='Helvetica')
+# TREMOLOGAIN_TEXT.pack()
+# TREMOLOGAIN = Tk.Scale(tremoloFrame, variable = tremoloGain, orient = Tk.HORIZONTAL, from_ = 0, to = 10, resolution = output_gain_interval)
+# TREMOLOGAIN.pack()
+
 # tremolo2 UI
 TREMOLO2INFO = Tk.Label(tremolo2Frame, text='Tremolo2', font='Helvetica 12 bold')
 TREMOLO2INFO.pack(side = Tk.TOP)
@@ -362,11 +410,6 @@ while CONTINUE:
     if ROBOTSTATUS:
         y = robotization(y, triangle_window, float(robotGain.get()))
 
-    
-    # Tianshu
-    # y, kr, kw, buffer = chorus(y, kr, kw, buffer, n)
-    # n += 1
-
     # ring modulation
     if RINGMODULESTATUS:
         y, ring_mod_index = ring_mod(y, ring_mod_index, RATE, float(ringmoduleGain.get()))
@@ -392,6 +435,11 @@ while CONTINUE:
             y, states_treb_shel = shelving(b_treb_shel, a_treb_shel, y, states_treb_shel, float(shelvingGain.get()))
         else:
             pass
+    
+    # tremolo
+    # if TREMOLOSTATUS:
+    #     y = tremolo(y, n)
+    #     n += 1
 
     # tremolo2
     if TREMOLO2STATUS:
@@ -400,6 +448,14 @@ while CONTINUE:
     # wah_wah
     if WAHWAHSTATUS:
         y, Fc_wah_wah, wah_wah_pair = wah_wah(y, Fc_wah_wah, RATE, wah_wah_pair, float(wahwahGain.get()))
+    
+    if CHORUSSTATUS:
+        y, kr_ch, kw_ch, buffer_chorus = chorus(y, kr_ch, kw_ch, buffer_chorus, n)
+        n += 1
+
+    if FLANGERSTATUS:
+        y, kr_fl, kw_fl, buffer_flanger = flanger(y, kr_fl, kw_fl, buffer_flanger, n)
+        n += 1
 
 
     binary_data = struct.pack('h' * BLOCKLEN * CHANNELS, *y);    # Convert to binary binary data
