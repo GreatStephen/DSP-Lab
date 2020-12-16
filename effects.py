@@ -56,7 +56,7 @@ keys = {'a':0, 'z':1, 's':2, 'x':3, 'd':4, 'c':5, 'f':6, 'v':7, 'g':8, 'b':9, 'h
 
 output_gain_interval = 0.15
 
-# for chrous
+# for chrous& flanger
 n = 0
 # for overdrive
 ring_mod_index = 0
@@ -233,6 +233,12 @@ CHORUSOFF = Tk.Radiobutton(chorusFrame, text='Off', variable=chorusmoduleStatus,
 CHORUSOFF.pack(side = Tk.TOP)
 CHORUSON = Tk.Radiobutton(chorusFrame, text='On', variable=chorusmoduleStatus, value=1, command=chorusSelection)
 CHORUSON.pack(side = Tk.TOP)
+chorusGain = Tk.DoubleVar()
+chorusGain.set(1)
+CHORUS_TEXT = Tk.Label(chorusFrame, text = "Gain Interval", font='Helvetica')
+CHORUS_TEXT.pack()
+CHORUSGAIN = Tk.Scale(chorusFrame, variable = chorusGain, orient = Tk.HORIZONTAL, from_ = 0, to = 10, resolution = output_gain_interval)
+CHORUSGAIN.pack()
 
 # flanger UI
 FLANGERINFO = Tk.Label(flangerFrame, text='Flanger', font='Helvetica 12 bold')
@@ -242,6 +248,12 @@ FLANGEROFF = Tk.Radiobutton(flangerFrame, text='Off', variable=flangermoduleStat
 FLANGEROFF.pack(side = Tk.TOP)
 FLANGERON = Tk.Radiobutton(flangerFrame, text='On', variable=flangermoduleStatus, value=1, command=flangerSelection)
 FLANGERON.pack(side = Tk.TOP)
+flangerGain = Tk.DoubleVar()
+flangerGain.set(1)
+FLANGER_TEXT = Tk.Label(flangerFrame, text = "Gain Interval", font='Helvetica')
+FLANGER_TEXT.pack()
+FLANGERGAIN = Tk.Scale(flangerFrame, variable = flangerGain, orient = Tk.HORIZONTAL, from_ = 0, to = 10, resolution = output_gain_interval)
+FLANGERGAIN.pack()
 
 # ringModulation UI
 RINGMODULATIONINFO = Tk.Label(ringModulationFrame, text='Ring Modulation', font='Helvetica 12 bold')
@@ -450,11 +462,11 @@ while CONTINUE:
         y, Fc_wah_wah, wah_wah_pair = wah_wah(y, Fc_wah_wah, RATE, wah_wah_pair, float(wahwahGain.get()))
     
     if CHORUSSTATUS:
-        y, kr_ch, kw_ch, buffer_chorus = chorus(y, kr_ch, kw_ch, buffer_chorus, n)
+        y, kr_ch, kw_ch, buffer_chorus = chorus(y, kr_ch, kw_ch, buffer_chorus, n, RATE, float(chorusGain.get()))
         n += 1
 
     if FLANGERSTATUS:
-        y, kr_fl, kw_fl, buffer_flanger = flanger(y, kr_fl, kw_fl, buffer_flanger, n)
+        y, kr_fl, kw_fl, buffer_flanger = flanger(y, kr_fl, kw_fl, buffer_flanger, n, RATE, float(flangerGain.get()))
         n += 1
 
 

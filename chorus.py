@@ -2,12 +2,8 @@ import pyaudio
 import wave
 import struct
 import math
+import numpy as np
 from myfunctions import clip16
-
-BLOCKLEN   = 128        # Number of frames per block
-WIDTH       = 2         # Bytes per sample
-CHANNELS    = 1         # Mono
-RATE        = 8000      # Frames per second
 
 # Vibrato parameters
 f0 = 2
@@ -21,7 +17,7 @@ buffer = BUFFER_LEN * [0]   # list of zeros
 kr = 0  # read index
 kw = int(0.5 * BUFFER_LEN)  # write index (initialize to middle of buffer)
 
-def chorus(x0, kr, kw, buffer, n):
+def chorus(x0, kr, kw, buffer, n, RATE, gain=1, MAXVALUE=2**15-1):
     # Get previous and next buffer values (since kr is fractional)
     y0 = []
     for i in range(len(x0)):
@@ -51,5 +47,8 @@ def chorus(x0, kr, kw, buffer, n):
         if kw == BUFFER_LEN:
             # End of buffer. Circle back to front.
             kw = 0
-
+    y0 = np.array(y0)
+    y0 = y0*gain
+    y0 = np.clip(y0, -MAXVALUE, MAXVALUE) # clipping
+    y0 = y0.astype(int) # convert to integer
     return y0, kr, kw, buffer
