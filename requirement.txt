@@ -1,0 +1,4 @@
+PyAudio==0.2.11
+numpy==1.16.4
+scipy==1.5.2
+tkinter==8.6

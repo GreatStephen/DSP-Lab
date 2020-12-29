@@ -1,21 +1,21 @@
 import pyaudio, struct
 import numpy as np
 from scipy import signal
-from math import sin, cos, pi
 import tkinter as Tk   
 import math 
-from filter.overdrive import overdrive
-from filter.robotization import robotization
-from filter.ring_mod import ring_mod
-from filter.moorer import moorer, moorer_pre
-from filter.reverb_convolution import reverb_convolution, clic_pre
-from filter.shelving import shelving, shelving_pre
-from filter.reverb_schroeder import schroeder, schroeder_pre
-from filter.tremolo2 import tremolo2
-from filter.wah_wah import wah_wah
-from filter.chorus import chorus
-from filter.flanger import flanger
-from filter.tremolo import tremolo
+from math import sin, cos, pi
+from filters.overdrive import overdrive
+from filters.robotization import robotization
+from filters.ring_mod import ring_mod
+from filters.moorer import moorer, moorer_pre
+from filters.reverb_convolution import reverb_convolution, clic_pre
+from filters.shelving import shelving, shelving_pre
+from filters.reverb_schroeder import schroeder, schroeder_pre
+from filters.tremolo2 import tremolo2
+from filters.wah_wah import wah_wah
+from filters.chorus import chorus
+from filters.flanger import flanger
+from filters.tremolo import tremolo
 
 # ---------------------------- Parameters -----------------------------
 BLOCKLEN   = 128        # Number of frames per block
@@ -65,7 +65,7 @@ n_sch, g_sch, d_sch, k_sch, states_list_sch = schroeder_pre(RATE)
 # for reverb moorer
 cd_moor, g1_moor, g2_moor, cg_moor, cg1_moor, ag_moor, ad_moor, k_moor, states_list_moor = moorer_pre(RATE)
 # for reverb convolution
-clicfile = 'impulse_room.wav'
+clicfile = 'wave_file/impulse_room.wav'
 imp_rc, keep_rc = clic_pre(clicfile, BLOCKLEN)
 # for shelving
 [b_base_shel, a_base_shel], states_base_shel = shelving_pre(RATE, "Base_Shelf")
