@@ -4,21 +4,21 @@ from scipy import signal
 from math import sin, cos, pi
 import tkinter as Tk   
 import math 
-from overdrive import overdrive
-from robotization import robotization
-from ring_mod import ring_mod
-from moorer import moorer, moorer_pre
-from reverb_convolution import reverb_convolution, clic_pre
-from shelving import shelving, shelving_pre
-from reverb_schroeder import schroeder, schroeder_pre
-from tremolo2 import tremolo2
-from wah_wah import wah_wah
-from chorus import chorus
-from flanger import flanger
-from tremolo import tremolo
+from filter.overdrive import overdrive
+from filter.robotization import robotization
+from filter.ring_mod import ring_mod
+from filter.moorer import moorer, moorer_pre
+from filter.reverb_convolution import reverb_convolution, clic_pre
+from filter.shelving import shelving, shelving_pre
+from filter.reverb_schroeder import schroeder, schroeder_pre
+from filter.tremolo2 import tremolo2
+from filter.wah_wah import wah_wah
+from filter.chorus import chorus
+from filter.flanger import flanger
+from filter.tremolo import tremolo
 
 # ---------------------------- Parameters -----------------------------
-BLOCKLEN   = 1024        # Number of frames per block
+BLOCKLEN   = 128        # Number of frames per block
 WIDTH       = 2         # Bytes per sample
 CHANNELS    = 1         # Mono
 RATE        = 8000      # Frames per second
