@@ -8,7 +8,7 @@ This is a simple guitar simulator that apply multiple filters and further genera
 <img src = 'https://raw.githubusercontent.com/GreatStephen/DSP-Lab/main/docs/GUI.PNG'>
 </p>
 
-For more informatin in the therories for these filters, please click the [report paper](https://github.com/GreatStephen/DSP-Lab/docs/DSP_proj_report.pdf/).
+For more informatin in the therories for these filters, please click the [report paper](https://github.com/GreatStephen/DSP-Lab/blob/main/docs/DSP_proj_report.pdf/).
 
 ## Local Deployment
 
