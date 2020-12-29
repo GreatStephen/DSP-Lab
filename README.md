@@ -5,7 +5,7 @@
 This is a simple guitar simulator that applies multiple filters and further generates the synthesis wave file in real-time. We first built multiple filters, including delaying (chorus, flanger, vibrato), modulation (ring, tremolo), non-linear processing (distortion), time-varying (wah-wah), and some special effects (reverberation). All these filter functions can be found in `filters`. Then, we constructed a GUI interface as the graph below to further synthesize and control each wave file. Note that there are two options for the source sounds, the piano click sounds, and the microphone input.
 
 <p align = 'center'>
-<img src = 'https://raw.githubusercontent.com/GreatStephen/DSP-Lab/main/docs/GUI.PNG'>
+<img src = 'https://raw.githubusercontent.com/GreatStephen/DSP-Lab/main/docs/GUI_interface.PNG'>
 </p>
 
 For more information about the therories of these filters, please click the [report paper](https://github.com/GreatStephen/DSP-Lab/blob/main/docs/DSP_proj_report.pdf/).
